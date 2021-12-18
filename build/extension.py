@@ -2,7 +2,6 @@
 
 import sys
 import ast
-from rich import print
 import vscode
 import pdb
 
