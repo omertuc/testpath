@@ -12,12 +12,8 @@
   "contributes": {
     "commands": [
       {
-        "command": "testpath.helloWorld",
-        "title": "Hello World"
-      },
-      {
-        "command": "testpath.askQuestion",
-        "title": "Ask Question"
+        "command": "testpath.pytestPath",
+        "title": "Pytest Path"
       }
     ],
     "configuration": {
@@ -26,7 +22,6 @@
     }
   },
   "activationEvents": [
-    "onCommand:testpath.helloWorld",
-    "onCommand:testpath.askQuestion"
+    "onCommand:testpath.pytestPath"
   ]
 }

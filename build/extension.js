@@ -181,8 +181,8 @@ class Webview {
 function activate(context) {
 let globalStorage = {}
 console.log("The Extension 'testpath' has started");
-let helloWorld = vscode.commands.registerCommand('testpath.helloWorld',async function () {
-let funcName = "hello_world"; let pyVar = "python3";
+let pytestPath = vscode.commands.registerCommand('testpath.pytestPath',async function () {
+let funcName = "pytest_path"; let pyVar = "python3";
         let py = spawn(pyVar, [pythonPath, funcName]);
 
         py.stdout.on("data", (data) => {
@@ -196,23 +196,7 @@ let funcName = "hello_world"; let pyVar = "python3";
             console.error(`An Error occurred in the python script: ${data}`);
         });
         });
-context.subscriptions.push(helloWorld);
-let askQuestion = vscode.commands.registerCommand('testpath.askQuestion',async function () {
-let funcName = "ask_question"; let pyVar = "python3";
-        let py = spawn(pyVar, [pythonPath, funcName]);
-
-        py.stdout.on("data", (data) => {
-            try {
-            executeCommands(py, data, globalStorage);
-            } catch (e) {
-            console.error(e);
-            }
-        });
-        py.stderr.on("data", (data) => {
-            console.error(`An Error occurred in the python script: ${data}`);
-        });
-        });
-context.subscriptions.push(askQuestion);
+context.subscriptions.push(pytestPath);
 }
 
 function deactivate() {}
