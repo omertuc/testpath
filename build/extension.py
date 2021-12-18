@@ -133,7 +133,7 @@ def pytest_path():
         if isinstance(node, ast.FunctionDef):
             results.extend(handle_method(name, None, node))
 
-    cursor = (editor.cursor.line, editor.cursor.character)
+    cursor = (editor.cursor.line + 1, editor.cursor.character + 1)
 
     for bounds, entry in results:
         if does_contain(bounds, cursor):
