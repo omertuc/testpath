@@ -1,7 +1,5 @@
 import ast
 from textwrap import dedent
-import jsonpickle
-import json
 from rich import print
 import vscode
 
