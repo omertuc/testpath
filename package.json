@@ -19,7 +19,13 @@
     "configuration": {
       "title": "Test Py",
       "properties": {}
-    }
+    },
+    "keybindings": [
+      {
+        "command": "testpath.pytestPath",
+        "key": "F6"
+      }
+    ]
   },
   "activationEvents": [
     "onCommand:testpath.pytestPath"

@@ -1,6 +1,6 @@
 import ast
 import vscode
-import pdb
+from pathlib import Path
 
 
 def handle_decorator(file_name, class_name, method_name, decorator):
@@ -108,7 +108,37 @@ def on_activate():
     return f"The Extension '{ext.name}' has started"
 
 
-@ext.command()
+# WIP
+def edit_launch(file_name, selected):
+    workspace = Path(file_name)
+    while all(child.name != ".vscode" for child in workspace.iterdir()) or workspace == Path("/"):
+        workspace = workspace.parent
+
+    if workspace == Path("/"):
+        vscode.window.show_info_message(f"Failed to find .vscode directory")
+        return
+
+    if all(child.name != "launch.json" for child in workspace.iterdir()):
+        vscode.window.show_info_message(f"Failed to find launch.json file")
+        return
+
+    launch_file = workspace / "launch.json"
+
+    with open(launch_file, "r") as f:
+        launch_json = f.read()
+
+
+    from json5.loader import loads, ModelLoader
+    from json5.dumper import dumps, ModelDumper, modelize
+    from json5.model import BlockComment
+    model = loads(launch_json, loader=ModelLoader())
+    print(model)
+    print(dumps(model, dumper=ModelDumper()))
+
+
+
+
+@ext.command(keybind="F6")
 def pytest_path():
     editor = vscode.window.ActiveTextEditor()
     if not editor:
@@ -131,9 +161,16 @@ def pytest_path():
 
     cursor = (editor.cursor.line + 1, editor.cursor.character + 1)
 
+    selected = ''
     for bounds, entry in results:
         if does_contain(bounds, cursor):
             vscode.window.show_info_message(entry)
+            selected = entry
+            break
+
+    if selected:
+        # edit_launch(name, selected)
+        pass
 
 
 vscode.build(ext)
