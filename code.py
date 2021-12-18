@@ -1,6 +1,7 @@
 import ast
 import vscode
 from pathlib import Path
+import re
 
 
 def handle_decorator(file_name, class_name, method_name, decorator):
@@ -108,49 +109,67 @@ def on_activate():
     return f"The Extension '{ext.name}' has started"
 
 
-# WIP
-def edit_launch(file_name, selected):
-    workspace = Path(file_name)
-    while all(child.name != ".vscode" for child in workspace.iterdir()) or workspace == Path("/"):
-        workspace = workspace.parent
+def edit_launch(workspace, selected):
+    launch = workspace / ".vscode" / "launch.json"
 
-    if workspace == Path("/"):
-        vscode.window.show_info_message(f"Failed to find .vscode directory")
-        return
-
-    if all(child.name != "launch.json" for child in workspace.iterdir()):
+    if not launch.exists():
         vscode.window.show_info_message(f"Failed to find launch.json file")
         return
 
-    launch_file = workspace / "launch.json"
-
-    with open(launch_file, "r") as f:
+    with open(launch, "r") as f:
         launch_json = f.read()
 
+    launch_json = re.sub(r'(\s*(?://)?\s*")tests/.+?(")', f"\\1{selected}\\2", selected)
 
-    from json5.loader import loads, ModelLoader
-    from json5.dumper import dumps, ModelDumper, modelize
-    from json5.model import BlockComment
-    model = loads(launch_json, loader=ModelLoader())
-    print(model)
-    print(dumps(model, dumper=ModelDumper()))
+    with open(launch, "w") as f:
+        f.write(launch_json)
 
+
+def get_workspace(file_name):
+    root = Path("/")
+    workspace = Path(file_name)
+    while not (workspace / ".vscode").exists() or workspace != root:
+        workspace = workspace.parent
+
+    if workspace == root:
+        vscode.window.show_info_message(f"Failed to find .vscode directory")
+        return root
+
+    return workspace
 
 
 
 @ext.command(keybind="F6")
 def pytest_path():
+    print("wow")
+
     editor = vscode.window.ActiveTextEditor()
+
+    print("whats")
     if not editor:
+        print("going")
         return
+
+    print("a")
 
     doc = editor.document
     name = doc.file_name
 
+    print("b")
+
     with open(name, "r") as f:
         text = f.read()
 
+    print("c")
+
     tree = ast.parse(text)
+
+    print("d")
+
+    workspace = get_workspace(name)
+    name = Path(name).relative_to(workspace)
+
+    print(name, workspace)
 
     results = []
     for node in tree.body:
@@ -169,8 +188,7 @@ def pytest_path():
             break
 
     if selected:
-        # edit_launch(name, selected)
-        pass
+        edit_launch(workspace, selected)
 
 
 vscode.build(ext)
