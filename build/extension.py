@@ -4,6 +4,7 @@ import sys
 import ast
 import vscode
 from pathlib import Path
+import sys
 import re
 
 
@@ -122,7 +123,7 @@ def edit_launch(workspace, selected):
     with open(launch, "r") as f:
         launch_json = f.read()
 
-    launch_json = re.sub(r'(\s*(?://)?\s*")tests/.+?(")', f"\\1{selected}\\2", selected)
+    launch_json = re.sub(r'(\s*(?://)?\s*")tests/.+?(")', f"\\1{selected}\\2", launch_json)
 
     with open(launch, "w") as f:
         f.write(launch_json)
@@ -131,7 +132,7 @@ def edit_launch(workspace, selected):
 def get_workspace(file_name):
     root = Path("/")
     workspace = Path(file_name)
-    while not (workspace / ".vscode").exists() or workspace != root:
+    while not (workspace / ".vscode").exists() and workspace != root:
         workspace = workspace.parent
 
     if workspace == root:
@@ -144,35 +145,23 @@ def get_workspace(file_name):
 
 @ext.command(keybind="F6")
 def pytest_path():
-    print("wow")
-
     editor = vscode.window.ActiveTextEditor()
 
-    print("whats")
     if not editor:
-        print("going")
         return
 
-    print("a")
+    sys.stdout.flush()
 
     doc = editor.document
     name = doc.file_name
 
-    print("b")
-
     with open(name, "r") as f:
         text = f.read()
 
-    print("c")
-
     tree = ast.parse(text)
 
-    print("d")
-
     workspace = get_workspace(name)
-    name = Path(name).relative_to(workspace)
-
-    print(name, workspace)
+    name = str(Path(name).relative_to(workspace))
 
     results = []
     for node in tree.body:
@@ -186,7 +175,6 @@ def pytest_path():
     selected = ''
     for bounds, entry in results:
         if does_contain(bounds, cursor):
-            vscode.window.show_info_message(entry)
             selected = entry
             break
 
