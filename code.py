@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import ast
 import vscode
 from pathlib import Path
@@ -6,9 +8,14 @@ import re
 
 
 def handle_decorator(file_name, class_name, method_name, decorator):
-    decorator_name = ".".join(
-        (decorator.func.value.value.id, decorator.func.value.attr, decorator.func.attr)
-    )
+    try:
+        decorator_name = ".".join(
+            (decorator.func.value.value.id, decorator.func.value.attr, decorator.func.attr)
+        )
+    except AttributeError:
+        # Probably not the decorator we're looking for
+        return []
+
     if decorator_name != "pytest.mark.parametrize":
         return []
 
@@ -120,7 +127,9 @@ def edit_launch(workspace, selected):
     with open(launch, "r") as f:
         launch_json = f.read()
 
-    launch_json = re.sub(r'(\s*(?://)?\s*")tests/.+?(")', f"\\1{selected}\\2", launch_json)
+    launch_json = re.sub(
+        r'(\s*(?://)?\s*")tests/.+?(")', f"\\1{selected}\\2", launch_json
+    )
 
     with open(launch, "w") as f:
         f.write(launch_json)
@@ -139,6 +148,27 @@ def get_workspace(file_name):
     return workspace
 
 
+def parse_file(name, cursor):
+    with open(name, "r") as f:
+        text = f.read()
+
+    tree = ast.parse(text)
+
+    results = []
+    for node in tree.body:
+        if isinstance(node, ast.ClassDef):
+            results.extend(handle_class(name, node))
+        if isinstance(node, ast.FunctionDef):
+            results.extend(handle_method(name, None, node))
+
+    selected = ""
+    for bounds, entry in results:
+        if does_contain(bounds, cursor):
+            selected = entry
+            break
+
+    return selected
+
 
 @ext.command(keybind="F6")
 def pytest_path():
@@ -152,31 +182,24 @@ def pytest_path():
     doc = editor.document
     name = doc.file_name
 
-    with open(name, "r") as f:
-        text = f.read()
-
-    tree = ast.parse(text)
-
     workspace = get_workspace(name)
     name = str(Path(name).relative_to(workspace))
-
-    results = []
-    for node in tree.body:
-        if isinstance(node, ast.ClassDef):
-            results.extend(handle_class(name, node))
-        if isinstance(node, ast.FunctionDef):
-            results.extend(handle_method(name, None, node))
-
     cursor = (editor.cursor.line + 1, editor.cursor.character + 1)
 
-    selected = ''
-    for bounds, entry in results:
-        if does_contain(bounds, cursor):
-            selected = entry
-            break
+    selected = parse_file(name, cursor)
 
     if selected:
         edit_launch(workspace, selected)
 
 
 vscode.build(ext)
+
+
+def main():
+    parse_file(
+        "/home/omer/repos/ocs-ci/tests/manage/mcg/test_namespace_crd.py", (522, 15)
+    )
+
+
+if __name__ == "__main__":
+    main()
