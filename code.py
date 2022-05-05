@@ -10,7 +10,11 @@ import re
 def handle_decorator(file_name, class_name, method_name, decorator):
     try:
         decorator_name = ".".join(
-            (decorator.func.value.value.id, decorator.func.value.attr, decorator.func.attr)
+            (
+                decorator.func.value.value.id,
+                decorator.func.value.attr,
+                decorator.func.attr,
+            )
         )
     except AttributeError:
         # Probably not the decorator we're looking for
@@ -121,7 +125,7 @@ def edit_launch(workspace, selected):
     launch = workspace / ".vscode" / "launch.json"
 
     if not launch.exists():
-        vscode.window.show_info_message(f"Failed to find launch.json file")
+        vscode.window.show_info_message("Failed to find launch.json file")
         return
 
     with open(launch, "r") as f:
@@ -142,7 +146,7 @@ def get_workspace(file_name):
         workspace = workspace.parent
 
     if workspace == root:
-        vscode.window.show_info_message(f"Failed to find .vscode directory")
+        vscode.window.show_info_message("Failed to find .vscode directory")
         return root
 
     return workspace
