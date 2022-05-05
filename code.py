@@ -148,8 +148,8 @@ def get_workspace(file_name):
     return workspace
 
 
-def parse_file(name, cursor):
-    with open(name, "r") as f:
+def parse_file(full_name, name, cursor):
+    with open(full_name, "r") as f:
         text = f.read()
 
     tree = ast.parse(text)
@@ -180,14 +180,13 @@ def pytest_path():
     sys.stdout.flush()
 
     doc = editor.document
-    name = doc.file_name
+    full_name = doc.file_name
 
-    workspace = get_workspace(name)
-    name = str(Path(name).relative_to(workspace))
+    workspace = get_workspace(full_name)
+    name = str(Path(full_name).relative_to(workspace))
     cursor = (editor.cursor.line + 1, editor.cursor.character + 1)
 
-    raise ValueError(f"parsing {doc.file_name} - {workspace} {name} {cursor}")
-    selected = parse_file(name, cursor)
+    selected = parse_file(full_name, name, cursor)
 
     if selected:
         edit_launch(workspace, selected)
