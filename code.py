@@ -186,7 +186,7 @@ def pytest_path():
     name = str(Path(name).relative_to(workspace))
     cursor = (editor.cursor.line + 1, editor.cursor.character + 1)
 
-    raise ValueError(f"parsing {workspace} {name} {cursor}")
+    raise ValueError(f"parsing {doc.file_name} - {workspace} {name} {cursor}")
     selected = parse_file(name, cursor)
 
     if selected:
