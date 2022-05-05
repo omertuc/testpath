@@ -196,9 +196,10 @@ vscode.build(ext)
 
 
 def main():
-    parse_file(
-        "/home/omer/repos/ocs-ci/tests/manage/mcg/test_namespace_crd.py", (522, 15)
-    )
+    pass
+    # parse_file(
+    #     "/home/omer/repos/ocs-ci/tests/manage/mcg/test_namespace_crd.py", (522, 15)
+    # )
 
 
 if __name__ == "__main__":
