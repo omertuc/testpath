@@ -125,7 +125,7 @@ def edit_launch(workspace, selected):
     launch = workspace / ".vscode" / "launch.json"
 
     if not launch.exists():
-        vscode.window.show_info_message("Failed to find launch.json file")
+        vscode.window.show_info_message(f"Failed to find launch.json file to insert {selected}")
         return
 
     with open(launch, "r") as f:
